@@ -16,9 +16,27 @@ st.title("🛍 Wish Seller Anomaly Monitor")
 
 scored = pd.read_csv(os.path.join(ROOT, "models", "scored_products.csv"))
 
+# Combined verdict mirrors api/main.py's predict(): SUSPICIOUS if either
+# detector flags it. Keeping this logic identical in both places means the
+# dashboard and the API never disagree on the same product.
+scored["verdict"] = np.where(
+    scored["if_flag"] | scored["mh_flag"], "SUSPICIOUS", "NORMAL"
+)
+
 # ── Panel 1: Top suspicious products ─────────────────────
 st.subheader("Most anomalous products")
-tab1, tab2 = st.tabs(["Isolation Forest", "Mahalanobis"])
+
+n_susp = (scored["verdict"] == "SUSPICIOUS").sum()
+st.metric("Flagged SUSPICIOUS (IF OR Mahalanobis)", f"{n_susp} / {len(scored)}")
+
+tab0, tab1, tab2 = st.tabs(["Combined verdict", "Isolation Forest", "Mahalanobis"])
+
+with tab0:
+    combined = (scored[scored["verdict"] == "SUSPICIOUS"]
+                [["title_orig", "price", "retail_price", "units_sold",
+                  "rating", "if_score", "mh_score", "verdict"]]
+                .sort_values("if_score", ascending=False))
+    st.dataframe(combined, use_container_width=True)
 
 with tab1:
     top_if = (scored.sort_values("if_score", ascending=False)

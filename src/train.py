@@ -1,6 +1,6 @@
 import os
 import sys
-sys.path.append(os.path.abspath('..'))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from data.data import load
 from src.features import engineer
@@ -22,13 +22,15 @@ def main(path):
     df["if_flag"]   = df["if_score"] > if_art["thresh"]
     df["mh_flag"]   = df["mh_score"] > mh_art["thresh"]
 
-    # save scored dataset for dashboard
-    df.to_csv("models/scored_products.csv", index=False)
+    # persist trained artefacts + scored dataset for the API/dashboard
+    joblib.dump(if_art, "models/iforest.pkl")
+    joblib.dump(mh_art, "models/mahal.pkl")
     joblib.dump(feats.columns.tolist(), "models/feature_cols.pkl")
+    df.to_csv("models/scored_products.csv", index=False)
 
     n_if = df["if_flag"].sum()
     n_mh = df["mh_flag"].sum()
-    print(f"✓ Trained on {len(df)} products")
+    print(f"Trained on {len(df)} products")
     print(f"  IF flagged:    {n_if} ({n_if/len(df)*100:.1f}%)")
     print(f"  Mahal flagged: {n_mh} ({n_mh/len(df)*100:.1f}%)")
 

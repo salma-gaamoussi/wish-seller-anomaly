@@ -20,7 +20,10 @@ def engineer(df: pd.DataFrame) -> pd.DataFrame:
         df["rating_count"] / (df["units_sold"] + 1)
     )
 
-    # 3. sales per ad boost — low = paying for ads, getting nothing
+    # 3. sales given ad-boost usage. Dataset only exposes a binary
+    # uses_ad_boosts flag (no $ spend), so this is a coarse proxy: it flags
+    # products that turned on paid promotion but still sold poorly, not
+    # actual wasted spend.
     out["ad_efficiency"] = (
         df["units_sold"] / (df["uses_ad_boosts"] + 1)
     )

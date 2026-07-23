@@ -216,3 +216,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Large/unused local data files not needed to run this project
+data/online_retail_II.xlsx
+.gitignore

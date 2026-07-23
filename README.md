@@ -20,23 +20,7 @@ the reason each one got flagged, so a human can review them faster.
 
 ## How it works
 
-```
-raw product data (CSV)
-        │
-        ▼
-  feature engineering  (src/features.py)
-  5 behavior signals: discount_rate, review_to_sales_ratio,
-  ad_efficiency, rating_quality, merchant_trust_gap
-        │
-        ▼
-  two anomaly detectors, trained separately (src/detectors.py)
-   ├─ Isolation Forest    (density-based)
-   └─ Mahalanobis distance (distance-based)
-        │
-        ▼
-  scored_products.csv ──► FastAPI (/predict)   ──► one product, live
-                     └──► Streamlit dashboard  ──► whole catalog, browsing
-```
+![Architecture diagram](docs/architecture.png)
 
 I used two different detection methods on purpose, so I can check where they
 agree. If Isolation Forest and Mahalanobis distance (which work in pretty
